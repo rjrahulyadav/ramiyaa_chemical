@@ -145,7 +145,7 @@ function renderDatasets() {
         <div class="dataset-item ${selectedDataset === dataset.id ? 'selected' : ''}" 
              onclick="handleDatasetSelect(${dataset.id})">
             <h4>📄 ${dataset.file_name}</h4>
-            <small>📅 ${new Date(dataset.created_at).toLocaleDateString()}</small>
+            <small>📅 ${new Date(dataset.uploaded_at).toLocaleDateString()}</small>
         </div>
     `).join('');
 }
