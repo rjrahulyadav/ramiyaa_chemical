@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Chemical Equipment Parameter Visualizer</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div id="notification" class="notification hidden">
+        <span id="notification-message"></span>
+        <button onclick="hideNotification()">×</button>
+    </div>
+
+    <header class="App-header">
+        <div class="header-content">
+            <h1>⚗️ Chemical Equipment Parameter Visualizer</h1>
+            <p>Advanced Analytics & Visualization Platform</p>
+            <div class="header-stats">
+                <span class="stat">📈 Real-time Analysis</span>
+                <span class="stat">📊 Interactive Charts</span>
+                <span class="stat">📄 PDF Reports</span>
+            </div>
+        </div>
+    </header>
+
+    <main class="App-main">
+        <div class="upload-section">
+            <div class="upload-card">
+                <h2>📤 Upload Dataset</h2>
+                <div class="upload-area" id="upload-area">
+                    <div class="upload-icon">📁</div>
+                    <p>Drag & drop CSV files here</p>
+                    <p>or</p>
+                    <input type="file" id="file-input" accept=".csv" hidden>
+                    <button class="upload-button" onclick="document.getElementById('file-input').click()">
+                        Choose File
+                    </button>
+                    <p class="upload-hint">Expected format: Equipment Name, Type, Flowrate, Pressure, Temperature</p>
+                </div>
+                <div class="quick-tips">
+                    <h4>💡 Quick Tips</h4>
+                    <ul>
+                        <li>Press <kbd>Ctrl+U</kbd> to quickly select files</li>
+                        <li>Drag & drop CSV files for instant upload</li>
+                        <li>View last 5 uploaded datasets in history</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+
+        <div class="content-section">
+            <div class="datasets-panel">
+                <h2>📁 Dataset History</h2>
+                <div id="datasets-list" class="datasets-list">
+                    <p class="empty-message">No datasets uploaded yet</p>
+                </div>
+                <div id="dataset-actions" class="panel-actions hidden">
+                    <button class="pdf-button" onclick="generatePDF()" id="pdf-button" disabled>
+                        📄 Generate PDF Report
+                    </button>
+                    <div class="dataset-info">
+                        <small id="dataset-id">📅 Dataset ID: -</small>
+                        <small id="record-count">🔢 Records: -</small>
+                    </div>
+                </div>
+            </div>
+
+            <div class="visualization-panel">
+                <div id="loading-state" class="loading-state hidden">
+                    <div class="loading-spinner"></div>
+                    <h3>⏳ Processing Data...</h3>
+                    <p>Analyzing equipment parameters and generating visualizations</p>
+                </div>
+                <div id="empty-state" class="empty-state">
+                    <div class="empty-icon">📈</div>
+                    <h3>Ready for Data Analysis</h3>
+                    <p>Upload a CSV file to start visualizing your chemical equipment data</p>
+                    <div class="sample-format">
+                        <h4>Expected CSV Format:</h4>
+                        <code>Equipment Name, Type, Flowrate, Pressure, Temperature</code>
+                    </div>
+                </div>
+                <div id="data-visualization" class="data-visualization hidden">
+                    <div class="chart-container">
+                        <canvas id="flowrateChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="pressureChart"></canvas>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="temperatureChart"></canvas>
+                    </div>
+                    <div class="summary-cards">
+                        <div class="summary-card">
+                            <h4>Total Equipment</h4>
+                            <p id="total-count">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Avg Flowrate</h4>
+                            <p id="avg-flowrate">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Avg Pressure</h4>
+                            <p id="avg-pressure">0</p>
+                        </div>
+                        <div class="summary-card">
+                            <h4>Avg Temperature</h4>
+                            <p id="avg-temperature">0</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
