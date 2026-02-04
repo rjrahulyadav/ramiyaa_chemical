@@ -3,6 +3,12 @@ const API_BASE_URL = process.env.API_BASE_URL || 'http://localhost:8000/api';
 const username = 'admin';
 const password = 'admin123';
 
+// Create Basic Auth header
+const getAuthHeader = () => {
+    const credentials = btoa(`${username}:${password}`);
+    return `Basic ${credentials}`;
+};
+
 // State
 let datasets = [];
 let selectedDataset = null;
@@ -89,14 +95,13 @@ function handleFile(file) {
     fetch(`${API_BASE_URL}/datasets/`, {
         method: 'POST',
         body: formData,
-        auth: {
-            username: username,
-            password: password
+        headers: {
+            'Authorization': getAuthHeader()
         }
     })
     .then(response => {
         if (!response.ok) {
-            throw new Error('Upload failed');
+            throw new Error('Upload failed: ' + response.status);
         }
         return response.json();
     })
@@ -113,12 +118,16 @@ function handleFile(file) {
 // Fetch datasets
 function fetchDatasets() {
     fetch(`${API_BASE_URL}/datasets/`, {
-        auth: {
-            username: username,
-            password: password
+        headers: {
+            'Authorization': getAuthHeader()
         }
     })
-    .then(response => response.json())
+    .then(response => {
+        if (!response.ok) {
+            throw new Error('Failed to fetch datasets: ' + response.status);
+        }
+        return response.json();
+    })
     .then(data => {
         datasets = data;
         renderDatasets();
@@ -157,15 +166,19 @@ function handleDatasetSelect(datasetId) {
     
     showLoading(true);
     
+    const headers = { 'Authorization': getAuthHeader() };
+    
     Promise.all([
-        fetch(`${API_BASE_URL}/datasets/${datasetId}/summary/`, {
-            auth: { username: username, password: password }
-        }),
-        fetch(`${API_BASE_URL}/datasets/${datasetId}/equipment/`, {
-            auth: { username: username, password: password }
-        })
+        fetch(`${API_BASE_URL}/datasets/${datasetId}/summary/`, { headers }),
+        fetch(`${API_BASE_URL}/datasets/${datasetId}/equipment/`, { headers })
     ])
-    .then(responses => Promise.all(responses.map(r => r.json())))
+    .then(responses => {
+        const errors = responses.filter(r => !r.ok);
+        if (errors.length > 0) {
+            throw new Error('Failed to fetch data');
+        }
+        return Promise.all(responses.map(r => r.json()));
+    })
     .then(([summaryData, equipmentData]) => {
         summary = summaryData;
         equipment = equipmentData;
@@ -202,9 +215,9 @@ function renderVisualization() {
     if (temperatureChart) temperatureChart.destroy();
     
     // Create charts
-    createChart('flowrateChart', 'Flowrate by Equipment', 'flowrateChart', '#3b82f6');
-    createChart('pressureChart', 'Pressure by Equipment', 'pressureChart', '#10b981');
-    createChart('temperatureChart', 'Temperature by Equipment', 'temperatureChart', '#f59e0b');
+    createChart('flowrateChart', 'Flowrate by Equipment', 'flowrate', '#3b82f6');
+    createChart('pressureChart', 'Pressure by Equipment', 'pressure', '#10b981');
+    createChart('temperatureChart', 'Temperature by Equipment', 'temperature', '#f59e0b');
 }
 
 function createChart(canvasId, label, dataKey, color) {
@@ -261,9 +274,8 @@ function generatePDF() {
     showNotification('Generating PDF report...', 'info');
     
     fetch(`${API_BASE_URL}/datasets/${selectedDataset}/pdf/`, {
-        auth: {
-            username: username,
-            password: password
+        headers: {
+            'Authorization': getAuthHeader()
         }
     })
     .then(response => response.blob())
